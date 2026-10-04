@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f17">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="My Budget">
+  <title>My Budget</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">PERSONAL BUDGET</div>
+      <h1>My Budget</h1>
+    </div>
+    <button class="icon-btn" id="settingsBtn" aria-label="Budget settings">⚙️</button>
+  </header>
+
+  <main>
+    <section class="month-row">
+      <button class="nav-btn" id="prevMonth">‹</button>
+      <div>
+        <div class="month-label" id="monthLabel"></div>
+        <div class="month-sub">Monthly spending</div>
+      </div>
+      <button class="nav-btn" id="nextMonth">›</button>
+    </section>
+
+    <section class="overview card">
+      <div class="overview-head">
+        <div><span class="muted">Total budget</span><strong id="totalBudget">$0.00</strong></div>
+        <div class="align-right"><span class="muted">Spent</span><strong id="totalSpent">$0.00</strong></div>
+      </div>
+      <div class="progress"><span id="overallProgress"></span></div>
+      <div class="overview-foot"><span>Remaining</span><strong id="remaining">$0.00</strong></div>
+    </section>
+
+    <section class="card add-card">
+      <div class="section-title"><h2>Add expense</h2><span class="muted">Saved automatically</span></div>
+      <form id="expenseForm">
+        <div class="form-grid">
+          <label>Category<select id="category" required>
+            <option value="gas">⛽ Gas</option>
+            <option value="groceries">🛒 Groceries</option>
+            <option value="discretionary">🎯 Discretionary</option>
+          </select></label>
+          <label>Amount<input id="amount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required></label>
+          <label class="wide">Description<input id="description" type="text" maxlength="100" placeholder="What did you spend on?"></label>
+          <label>Date<input id="expenseDate" type="date" required></label>
+        </div>
+        <button class="primary-btn" type="submit">＋ Add expense</button>
+      </form>
+    </section>
+
+    <section>
+      <div class="section-title"><h2>Categories</h2><button class="text-btn" id="budgetBtn">Set budgets</button></div>
+      <div class="category-grid" id="categoryGrid"></div>
+    </section>
+
+
+
+    <section class="charts">
+      <div class="card chart-card"><div class="section-title"><h2>Spending breakdown</h2></div><div id="donut" class="donut"><div><strong id="donutTotal">$0</strong><span>spent</span></div></div><div id="legend" class="legend"></div></div>
+      <div class="card chart-card"><div class="section-title"><h2>Budget vs spent</h2></div><div id="bars"></div></div>
+    </section>
+
+    <section>
+      <div class="section-title"><h2>Transaction log</h2></div>
+      <div class="filters"><input id="search" placeholder="Search expenses…"><select id="filter"><option value="all">All categories</option><option value="gas">Gas</option><option value="groceries">Groceries</option><option value="discretionary">Discretionary</option></select></div>
+      <div id="expenseList" class="expense-list"></div>
+    </section>
+
+    <section>
+      <div class="section-title"><h2>Monthly history</h2></div>
+      <div id="history" class="history"></div>
+    </section>
+
+    <section class="card backup-card">
+      <div class="section-title"><h2>Backup & restore</h2><span id="backupStatus" class="status-pill">Backup ready</span></div>
+      <p class="muted backup-copy">A backup snapshot is updated automatically whenever your data changes. You can also save a backup file to the iPhone Files app for extra protection.</p>
+      <div class="backup-actions">
+        <button class="secondary-btn" id="backupNow">⬇ Save backup file</button>
+        <button class="secondary-btn" id="restoreBtn">↥ Restore backup</button>
+        <button class="secondary-btn danger-outline" id="deleteAllBtn">Delete all data</button>
+      </div>
+      <input id="restoreFile" type="file" accept=".json,application/json" hidden>
+    </section>
+
+    <section class="card export-card">
+      <button class="primary-btn" id="excelBtn">📊 Export all expenses to Excel</button>
+      <p class="muted center">Exports every saved month and every expense.</p>
+    </section>
+  </main>
+
+  <footer>My Budget • Your data stays on this device unless you save a backup file.</footer>
+</div>
+
+<div class="modal hidden" id="budgetModal"><div class="modal-box"><div class="modal-head"><h2>Monthly budgets</h2><button class="icon-btn" data-close>✕</button></div><p class="muted">Set limits for <span id="modalMonth"></span>.</p><label>⛽ Gas<input id="budgetGas" type="number" min="0" step="0.01"></label><label>🛒 Groceries<input id="budgetGroceries" type="number" min="0" step="0.01"></label><label>🎯 Discretionary<input id="budgetDiscretionary" type="number" min="0" step="0.01"></label><button class="primary-btn" id="saveBudgets">Save budgets</button></div></div>
+
+<div class="modal hidden" id="editModal"><div class="modal-box"><div class="modal-head"><h2>Edit expense</h2><button class="icon-btn" data-close>✕</button></div><input id="editId" type="hidden"><label>Category<select id="editCategory"><option value="gas">⛽ Gas</option><option value="groceries">🛒 Groceries</option><option value="discretionary">🎯 Discretionary</option></select></label><label>Amount<input id="editAmount" type="number" min="0.01" step="0.01"></label><label>Description<input id="editDescription" maxlength="100"></label><label>Date<input id="editDate" type="date"></label><button class="primary-btn" id="saveEdit">Save changes</button></div></div>
+
+<script src="app.js"></script>
+</body>
+</html>
